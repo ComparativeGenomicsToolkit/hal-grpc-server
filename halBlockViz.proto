@@ -1,0 +1,23 @@
+
+syntax = "proto3";
+
+message hal_block_results_t{
+    message hal_block_t{
+        required sint64 qChrom;
+        required sint64 tStart;
+        required sint64 qStart;
+        required sint64 size;
+        required sint64 strand;
+        required sint64 qSequence;
+        required sint64 tSequence;
+    }
+    message hal_target_dupe_list_t{
+        required sint64 id;
+        required sint64 qChrom;
+        message hal_target_range_t{
+            required sint64 tStart;
+            required sint64 size;
+        }
+    }
+    repeated hal_target_dupe_list_t 
+} 
