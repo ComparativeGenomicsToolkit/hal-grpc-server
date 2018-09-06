@@ -2,22 +2,56 @@
 syntax = "proto3";
 
 message hal_block_results_t{
-    message hal_block_t{
-        required sint64 qChrom;
-        required sint64 tStart;
-        required sint64 qStart;
-        required sint64 size;
-        required sint64 strand;
-        required sint64 qSequence;
-        required sint64 tSequence;
-    }
-    message hal_target_dupe_list_t{
-        required sint64 id;
-        required sint64 qChrom;
-        message hal_target_range_t{
-            required sint64 tStart;
-            required sint64 size;
-        }
-    }
-    repeated hal_target_dupe_list_t 
-} 
+    repeated hal_block_t mappedBlocks = 1; 
+    repeated hal_target_dupe_list_t targetDupeBlocks = 2;
+}
+
+message hal_block_t{
+    required sint64 qChrom = 1;
+    required sint64 tStart = 2;
+    required sint64 qStart = 3;
+    required sint64 size = 4;
+    required sint64 strand = 5;
+    required sint64 qSequence = 6;
+    required sint64 tSequence = 7;
+}
+
+message hal_target_dupe_list_t{
+    required sint64 id = 1;
+    required sint64 qChrom = 2;
+    repeated hal_target_range_t tRange = 3;
+}
+
+message hal_target_range_t{
+    required sint64 tStart = 1;
+    required sint64 size = 2;
+}
+
+message hal_species_t{
+    required sint64 name = 1;
+    required sint64 numChroms = 2;
+    required sint64 parentName = 3;
+    required double parentBranchLength = 4;
+}
+
+message hal_chromosome_t{
+    required sint64 name = 1;
+    required sint64 length = 2;
+}
+
+message hal_metadata_t{
+    required sint64 key = 1;
+    required sint64 value = 2;
+}
+
+enum dups{
+    HAL_NO_DUPS = 0;
+    HAL_QUERY_DUPS = 1;
+    HAL_QUERY_AND_TARGET_DUPS = 2;
+}
+
+enum seq{
+    HAL_NO_SEQUENCE = 0;
+    HAL_LOD0_SEQUENCE = 1;
+    HAL_FORCE_LOD0_SEQUENCE = 2;
+}
