@@ -1,57 +1,106 @@
-
 syntax = "proto3";
+package hal;
 
-message hal_block_results_t{
-    repeated hal_block_t mappedBlocks = 1; 
-    repeated hal_target_dupe_list_t targetDupeBlocks = 2;
+service BlockViz {
+    rpc GetBlocksInTargetRange (BlockRequest) returns (stream BlockResults);
+    rpc GetPossibleCoalescenceLimits (Alignment) returns (stream Genome);
+    rpc GetGenomes (Alignment) returns (stream Genome);
+    rpc GetChroms (GenomeRequest) returns (stream Chromosome);
+    rpc GetDNA (DNARequest) returns (DNAResponse);
+    rpc GetMaxLODQueryLength (Alignment) returns (MaxQueryLengthResponse);
+    rpc GetGenomeMetadata (GenomeRequest) returns (stream Metadata);
 }
 
-message hal_block_t{
-    required sint64 qChrom = 1;
-    required sint64 tStart = 2;
-    required sint64 qStart = 3;
-    required sint64 size = 4;
-    required sint64 strand = 5;
-    required sint64 qSequence = 6;
-    required sint64 tSequence = 7;
+message MaxQueryLengthResponse {
+    uint64 maxSize = 1;
 }
 
-message hal_target_dupe_list_t{
-    required sint64 id = 1;
-    required sint64 qChrom = 2;
-    repeated hal_target_range_t tRange = 3;
+message DNARequest {
+    string alignmentName = 1;
+    string genome = 2;
+    uint64 start = 3;
+    uint64 end = 4;
 }
 
-message hal_target_range_t{
-    required sint64 tStart = 1;
-    required sint64 size = 2;
+message DNAResponse {
+    string dna = 1;
 }
 
-message hal_species_t{
-    required sint64 name = 1;
-    required sint64 numChroms = 2;
-    required sint64 parentName = 3;
-    required double parentBranchLength = 4;
+message GenomeRequest {
+    string alignmentName = 1;
+    string genome = 2;
 }
 
-message hal_chromosome_t{
-    required sint64 name = 1;
-    required sint64 length = 2;
+message Alignment {
+    string name = 1;
 }
 
-message hal_metadata_t{
-    required sint64 key = 1;
-    required sint64 value = 2;
+message BlockRequest {
+    string alignmentName = 1;
+    string qSpecies = 2;
+    string tSpecies = 3;
+    string tChrom = 4;
+    uint64 tStart = 5;
+    uint64 tEnd = 6;
+    bool tReversed = 7;
+    enum SeqMode {
+        HAL_NO_SEQUENCE = 0;
+        HAL_LOD0_SEQUENCE = 1;
+        HAL_FORCE_LOD0_SEQUENCE = 2;
+    }
+    SeqMode seqMode = 8;
+    enum DupMode {
+        HAL_NO_DUPS = 0;
+        HAL_QUERY_DUPS = 1;
+        HAL_QUERY_AND_TARGET_DUPS = 2;
+    }
+    DupMode dupMode = 9;
+    bool mapBackAdjacencies = 10;
+    string coalescenceLimit = 11;
 }
 
-enum dups{
-    HAL_NO_DUPS = 0;
-    HAL_QUERY_DUPS = 1;
-    HAL_QUERY_AND_TARGET_DUPS = 2;
+message BlockResults {
+    repeated Block mappedBlocks = 1; 
+    repeated TargetDupe targetDupeBlocks = 2;
 }
 
-enum seq{
-    HAL_NO_SEQUENCE = 0;
-    HAL_LOD0_SEQUENCE = 1;
-    HAL_FORCE_LOD0_SEQUENCE = 2;
+message Block {
+    string qChrom = 1;
+    uint64 tStart = 2;
+    uint64 qStart = 3;
+    uint64 size = 4;
+    enum Strand {
+        PLUS = 0;
+        MINUS = 1;
+    }
+    Strand strand = 5;
+    string qSequence = 6;
+    string tSequence = 7;
+}
+
+message TargetDupe {
+    uint64 id = 1;
+    string qChrom = 2;
+    message TargetRange {
+        int64 tStart = 1;
+        int64 size = 2;
+    }
+    repeated TargetRange tRange = 3;
+}
+
+message Genome {
+    string name = 1;
+    uint64 numChroms = 2;
+    string parentName = 3;
+    double parentBranchLength = 4;
+}
+
+message Chromosome {
+    string name = 1;
+    uint64 length = 2;
+}
+
+message Metadata {
+    string key = 1;
+    string value = 2;
 }
